@@ -2,6 +2,7 @@ package projects
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,5 +42,28 @@ func GetProjectHandler(c *gin.Context) {
 // UpdateProjectHandler : Update a project given
 // its ID, Name, and Description
 func UpdateProjectHandler(c *gin.Context) {
-	// uuid := c.Param("uuid")
+	uuid := c.Param("uuid")
+	projectRequest := new(CreateProjectRequest)
+	err := c.Bind(projectRequest)
+	if err != nil {
+		fmt.Println(err)
+	}
+	res, err := UpdateProjectCore(uuid, projectRequest)
+	if err != nil {
+		c.JSON(404, ErrorResponse{ErrorCode: 404, ErrorMessage: err.Error()})
+	} else {
+		c.JSON(200, res)
+	}
+}
+
+// DeleteProjectHandler : Delete a project given
+// its ID
+func DeleteProjectHandler(c *gin.Context) {
+	uuid := c.Param("uuid")
+	err := DeleteProjectCore(uuid)
+	if err != nil {
+		c.JSON(500, ErrorResponse{ErrorCode: 404, ErrorMessage: "Unexpected error"})
+	} else {
+		c.Status(http.StatusNoContent)
+	}
 }
